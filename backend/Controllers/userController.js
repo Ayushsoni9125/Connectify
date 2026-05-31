@@ -1,6 +1,7 @@
 
 import User from "../Models/userModels.js";
 import bcryptjs from "bcryptjs";
+import jwtToken from "../utils/jwtwebToken.js";
 
 export const userRegister = async (req,res)=>{
     try {
@@ -23,6 +24,7 @@ export const userRegister = async (req,res)=>{
         });
         if(Newuser){
             await Newuser.save();
+            jwtToken(Newuser._id,res);
         }else{
             res.status(500).json({message: "User not created successfully",error:error.message});
         }
@@ -35,11 +37,29 @@ export const userRegister = async (req,res)=>{
 }
 export const userLogin = async (req,res)=>{
     try {
+            const { email, password } = req.body;
+            const user = await User.findOne({email});
+            if(!user){
+                return res.status(404).json({message: "User not found"});
+            }
+            const isPasswordValid = bcryptjs.compareSync(password,user.password);
+            if(!isPasswordValid){
+                return res.status(401).json({message: "Invalid email or password"});
+            }
+            jwtToken(user._id,res);
+            return res.status(200).json({message: "User logged in successfully",user});
         
     } catch (error) {
-        
+        console.log(error);
+        res.status(500).json({message: "Internal server error"});
     }
 }
 export const userLogout = (req,res)=>{
-    
+    try {
+        res.clearCookie("jwt");
+        return res.status(200).json({message: "User logged out successfully"});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Internal server error"});
+    }
 }
