@@ -3,11 +3,13 @@ import dotenv from "dotenv";
 import dbconnect from "./DB/dbconnection.js";
 import authRoutes from "./routes/authuser.js";
 import messageRoutes from './routes/messageRoute.js';
+import cookieParser from "cookie-parser";
 
 const app = express();
 dotenv.config();
 
 app.use(express.json());
+app.use(cookieParser());
 
 
 app.use('/api/auth',authRoutes);
