@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import dbconnect from "./DB/dbconnection.js";
 import authRoutes from "./routes/authuser.js";
 import messageRoutes from './routes/messageRoute.js';
+import userRoutes from "./routes/userRoute.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(cookieParser());
 
 app.use('/api/auth',authRoutes);
 app.use('/api/message',messageRoutes);
+app.use('/api/user',userRoutes);
 
 
 
