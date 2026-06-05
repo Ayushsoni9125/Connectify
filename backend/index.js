@@ -12,7 +12,7 @@ import { app, server } from "./socket/socket.js";
 
 // ─── Middleware ───────────────────────────────────────────────
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: /^http:\/\/localhost:\d+$/,
   credentials: true,
 }));
 app.use(express.json());        // ← MUST be before routes
