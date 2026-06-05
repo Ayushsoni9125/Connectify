@@ -1,5 +1,6 @@
 import Conversation from "../Models/conversation.js";
 import Message from "../Models/message.js";
+import { io, getReceiverSocketId } from "../socket/socket.js";
 
 export const sendMessage = async(req,res) => {
     try {
@@ -9,12 +10,12 @@ export const sendMessage = async(req,res) => {
 
         let chats = await Conversation.findOne({
             participants: {$all:[senderId,receiverId]}
-        })
+        });
 
         if(!chats){
             chats = await Conversation.create({
                 participants: [senderId,receiverId],
-            })
+            });
         }
 
         const newMessage = new Message({
@@ -22,23 +23,29 @@ export const sendMessage = async(req,res) => {
             receiverId,
             message,
             conversationId: chats._id,
-        })
-        
-       if(newMessage){
-        chats.messages.push(newMessage._id)
+        });
+
+        if(newMessage){
+            chats.messages.push(newMessage._id);
         }
 
-       await Promise.all([
-        newMessage.save(),
-        chats.save()
-       ])
+        await Promise.all([
+            newMessage.save(),
+            chats.save()
+        ]);
+
+        // Emit the new message in real-time to the receiver if they are online
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit("newMessage", newMessage);
+        }
 
         return res.status(201).json(newMessage);
     } catch (error) {
         console.log(error);
         res.status(500).json({message: "Internal server error"});
     }
-}   
+};
 
 export const getMessages = async(req,res) => {
     try {
@@ -58,4 +65,4 @@ export const getMessages = async(req,res) => {
         console.log(error);
         res.status(500).json({message: "Internal server error"});
     }
-}
+};

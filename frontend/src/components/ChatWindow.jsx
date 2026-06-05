@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import useChatStore from '../store/useChatStore';
 import useAuthStore from '../store/useAuthStore';
+import useSocketStore from '../store/useSocketStore';
 
 function formatTime(dateStr) {
   const d = new Date(dateStr);
@@ -31,6 +32,7 @@ function groupMessagesByDate(messages) {
 export default function ChatWindow() {
   const { selectedUser, messages, fetchMessages, sendMessage, isLoadingMessages, isSending } = useChatStore();
   const { authUser } = useAuthStore();
+  const { socket } = useSocketStore();
   const [text, setText] = useState('');
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -45,6 +47,29 @@ export default function ChatWindow() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // 🔴 Real-time: listen for incoming messages from the other person
+  useEffect(() => {
+    if (!socket || !selectedUser) return;
+
+    const handleNewMessage = (newMsg) => {
+      // Only append if the message is from the currently open conversation
+      const isFromSelectedUser =
+        newMsg.senderId === selectedUser._id || newMsg.senderId?.toString() === selectedUser._id?.toString();
+      if (isFromSelectedUser) {
+        useChatStore.setState((state) => ({
+          messages: [...state.messages, newMsg],
+        }));
+      }
+    };
+
+    socket.on('newMessage', handleNewMessage);
+
+    // Cleanup listener when chat changes or component unmounts
+    return () => {
+      socket.off('newMessage', handleNewMessage);
+    };
+  }, [socket, selectedUser]);
 
   const handleSend = async (e) => {
     e.preventDefault();

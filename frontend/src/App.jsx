@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import useAuthStore from './store/useAuthStore';
+import useSocketStore from './store/useSocketStore';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -50,11 +51,21 @@ function LoadingScreen() {
 }
 
 export default function App() {
-  const { checkAuth, isCheckingAuth } = useAuthStore();
+  const { checkAuth, isCheckingAuth, authUser } = useAuthStore();
+  const { connectSocket, disconnectSocket } = useSocketStore();
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Connect/disconnect socket based on auth state
+  useEffect(() => {
+    if (authUser) {
+      connectSocket(authUser._id);
+    } else {
+      disconnectSocket();
+    }
+  }, [authUser]);
 
   if (isCheckingAuth) return <LoadingScreen />;
 
