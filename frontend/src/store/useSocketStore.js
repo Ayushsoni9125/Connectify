@@ -1,15 +1,16 @@
 import { create } from 'zustand';
 import { io } from 'socket.io-client';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+
 const useSocketStore = create((set, get) => ({
   socket: null,
   onlineUsers: [],
 
   connectSocket: (userId) => {
-    // Don't connect if already connected
     if (get().socket?.connected) return;
 
-    const socket = io('http://localhost:3000', {
+    const socket = io(BACKEND_URL, {
       query: { userId },
       withCredentials: true,
     });

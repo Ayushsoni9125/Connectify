@@ -2,11 +2,16 @@ import { create } from 'zustand';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const isProd = import.meta.env.PROD;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+
+const api = (path) => (isProd ? `${BACKEND_URL}${path}` : path);
+
 const useChatStore = create((set, get) => ({
   selectedUser: null,
   messages: [],
-  users: [],        // search results
-  chatters: [],     // recent chatters
+  users: [],
+  chatters: [],
   isLoadingMessages: false,
   isLoadingUsers: false,
   isSending: false,
@@ -19,7 +24,7 @@ const useChatStore = create((set, get) => ({
   searchUsers: async (query) => {
     set({ isLoadingUsers: true });
     try {
-      const res = await axios.get(`/api/user/search?search=${query}`, { withCredentials: true });
+      const res = await axios.get(api(`/api/user/search?search=${query}`), { withCredentials: true });
       set({ users: res.data, isLoadingUsers: false });
     } catch {
       set({ isLoadingUsers: false });
@@ -28,7 +33,7 @@ const useChatStore = create((set, get) => ({
 
   fetchChatters: async () => {
     try {
-      const res = await axios.get('/api/user/currentchatters', { withCredentials: true });
+      const res = await axios.get(api('/api/user/currentchatters'), { withCredentials: true });
       set({ chatters: res.data });
     } catch {}
   },
@@ -36,7 +41,7 @@ const useChatStore = create((set, get) => ({
   fetchMessages: async (receiverId) => {
     set({ isLoadingMessages: true });
     try {
-      const res = await axios.get(`/api/message/${receiverId}`, { withCredentials: true });
+      const res = await axios.get(api(`/api/message/${receiverId}`), { withCredentials: true });
       set({ messages: res.data, isLoadingMessages: false });
     } catch {
       set({ isLoadingMessages: false });
@@ -47,7 +52,7 @@ const useChatStore = create((set, get) => ({
     set({ isSending: true });
     try {
       const res = await axios.post(
-        `/api/message/send/${receiverId}`,
+        api(`/api/message/send/${receiverId}`),
         { message },
         { withCredentials: true }
       );
@@ -55,7 +60,6 @@ const useChatStore = create((set, get) => ({
         messages: [...state.messages, res.data],
         isSending: false,
       }));
-      // Refresh chatters list
       get().fetchChatters();
       return true;
     } catch (err) {

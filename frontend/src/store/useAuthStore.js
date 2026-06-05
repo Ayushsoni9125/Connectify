@@ -2,15 +2,20 @@ import { create } from 'zustand';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const useAuthStore = create((set, get) => ({
+// In production (Vercel), VITE_BACKEND_URL is set in Vercel env vars.
+// In dev, Vite proxy handles /api → localhost:3000, so we use relative paths.
+const isProd = import.meta.env.PROD;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+
+const api = (path) => (isProd ? `${BACKEND_URL}${path}` : path);
+
+const useAuthStore = create((set) => ({
   authUser: null,
   isLoading: false,
   isCheckingAuth: true,
 
   checkAuth: async () => {
     try {
-      // Try getting current user from the search endpoint with empty query
-      // We store user in localStorage as a fallback
       const stored = localStorage.getItem('connectify_user');
       if (stored) {
         set({ authUser: JSON.parse(stored), isCheckingAuth: false });
@@ -25,7 +30,7 @@ const useAuthStore = create((set, get) => ({
   register: async (formData) => {
     set({ isLoading: true });
     try {
-      const res = await axios.post('/api/auth/register', formData, { withCredentials: true });
+      const res = await axios.post(api('/api/auth/register'), formData, { withCredentials: true });
       const user = res.data.user;
       localStorage.setItem('connectify_user', JSON.stringify(user));
       set({ authUser: user, isLoading: false });
@@ -42,7 +47,7 @@ const useAuthStore = create((set, get) => ({
   login: async (email, password) => {
     set({ isLoading: true });
     try {
-      const res = await axios.post('/api/auth/login', { email, password }, { withCredentials: true });
+      const res = await axios.post(api('/api/auth/login'), { email, password }, { withCredentials: true });
       const user = res.data.user;
       localStorage.setItem('connectify_user', JSON.stringify(user));
       set({ authUser: user, isLoading: false });
@@ -58,7 +63,7 @@ const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try {
-      await axios.post('/api/auth/logout', {}, { withCredentials: true });
+      await axios.post(api('/api/auth/logout'), {}, { withCredentials: true });
     } catch {}
     localStorage.removeItem('connectify_user');
     set({ authUser: null });
