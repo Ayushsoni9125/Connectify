@@ -34,7 +34,7 @@ app.use('/api/message', messageRoutes);
 app.use('/api/user', userRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Connectify API is running 🚀");
+  res.send("Connectify API is running 🚀 (v2 - CORS updated)");
 });
 
 // ─── Start ───────────────────────────────────────────────────
