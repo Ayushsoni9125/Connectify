@@ -5,9 +5,20 @@ import express from "express";
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigins = [
+    /^http:\/\/localhost:\d+$/,
+    /^https:\/\/.*\.vercel\.app$/,
+];
+
 const io = new Server(server, {
     cors: {
-        origin: /^http:\/\/localhost:\d+$/,
+        origin: (origin, cb) => {
+            if (!origin || allowedOrigins.some((o) => o.test(origin))) {
+                cb(null, true);
+            } else {
+                cb(new Error(`CORS blocked: ${origin}`));
+            }
+        },
         methods: ["GET", "POST"],
         credentials: true,
     },

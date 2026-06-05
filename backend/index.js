@@ -12,7 +12,17 @@ import { app, server } from "./socket/socket.js";
 
 // ─── Middleware ───────────────────────────────────────────────
 app.use(cors({
-  origin: /^http:\/\/localhost:\d+$/,
+  origin: (origin, cb) => {
+    const allowed = [
+      /^http:\/\/localhost:\d+$/,
+      /^https:\/\/.*\.vercel\.app$/,
+    ];
+    if (!origin || allowed.some((o) => o.test(origin))) {
+      cb(null, true);
+    } else {
+      cb(new Error(`CORS blocked: ${origin}`));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());        // ← MUST be before routes
