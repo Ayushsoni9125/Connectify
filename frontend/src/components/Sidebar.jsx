@@ -51,7 +51,7 @@ function UserItem({ user, isSelected, onClick }) {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isMobile }) {
   const { logout, authUser } = useAuthStore();
   const {
     selectedUser, setSelectedUser,
@@ -91,7 +91,14 @@ export default function Sidebar() {
   const displayList = tab === 'search' ? users : chatters;
 
   return (
-    <aside style={styles.sidebar}>
+    <aside
+      style={{
+        ...styles.sidebar,
+        width: isMobile ? '100%' : '300px',
+        minWidth: isMobile ? '100%' : '260px',
+        borderRight: isMobile ? 'none' : '1px solid var(--border)',
+      }}
+    >
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.logoRow}>

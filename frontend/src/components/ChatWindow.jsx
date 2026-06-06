@@ -30,8 +30,8 @@ function groupMessagesByDate(messages) {
   return groups;
 }
 
-export default function ChatWindow() {
-  const { selectedUser, messages, fetchMessages, sendMessage, isLoadingMessages, isSending } = useChatStore();
+export default function ChatWindow({ isMobile }) {
+  const { selectedUser, setSelectedUser, messages, fetchMessages, sendMessage, isLoadingMessages, isSending } = useChatStore();
   const { authUser } = useAuthStore();
   const { socket } = useSocketStore();
   const [text, setText] = useState('');
@@ -125,6 +125,17 @@ export default function ChatWindow() {
       {/* Top bar */}
       <div style={styles.topBar}>
         <div style={styles.topLeft}>
+          {isMobile && (
+            <button
+              onClick={() => setSelectedUser(null)}
+              style={styles.backBtn}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+              </svg>
+            </button>
+          )}
           <div style={{ position: 'relative' }}>
             <img
               src={getAvatarUrl(selectedUser)}
@@ -339,6 +350,19 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
+  },
+  backBtn: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--text-secondary)',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '4px',
+    marginRight: '4px',
+    borderRadius: '50%',
+    transition: 'background 0.2s',
   },
   avatar: {
     width: '42px',

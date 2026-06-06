@@ -1,11 +1,24 @@
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import ChatWindow from '../components/ChatWindow';
+import useChatStore from '../store/useChatStore';
 
 export default function HomePage() {
+  const { selectedUser } = useChatStore();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div style={styles.layout}>
-      <Sidebar />
-      <ChatWindow />
+      {(!isMobile || !selectedUser) && <Sidebar isMobile={isMobile} />}
+      {(!isMobile || selectedUser) && <ChatWindow isMobile={isMobile} />}
     </div>
   );
 }
