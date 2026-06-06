@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import useChatStore from '../store/useChatStore';
 import useAuthStore from '../store/useAuthStore';
+import { getAvatarUrl } from '../utils/avatar';
 
 function Avatar({ user, size = 40, showOnline = false }) {
   return (
     <div style={{ position: 'relative', flexShrink: 0 }}>
       <img
-        src={user?.profilepic || `https://avatar.iran.liara.run/public/boy?username=${user?.username}`}
+        src={getAvatarUrl(user)}
         alt={user?.fullname}
         style={{
           width: size,

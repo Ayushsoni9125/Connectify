@@ -18,8 +18,8 @@ export const userRegister = async (req,res)=>{
         }
 
         const hashPassword = bcryptjs.hashSync(password, 10);
-        const profileBoy = profilepic || `https://avatar.iran.liara.run/public/boy?username=${username}`;
-        const profileGirl = profilepic || `https://avatar.iran.liara.run/public/girl?username=${username}`;
+        const profileBoy = profilepic || `https://api.dicebear.com/7.x/adventurer/svg?seed=Jack-${username}`;
+        const profileGirl = profilepic || `https://api.dicebear.com/7.x/adventurer/svg?seed=Lily-${username}`;
         const Newuser = await User.create({
             fullname,
             username,

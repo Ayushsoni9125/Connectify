@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import useChatStore from '../store/useChatStore';
 import useAuthStore from '../store/useAuthStore';
 import useSocketStore from '../store/useSocketStore';
+import { getAvatarUrl } from '../utils/avatar';
 
 function formatTime(dateStr) {
   const d = new Date(dateStr);
@@ -126,7 +127,7 @@ export default function ChatWindow() {
         <div style={styles.topLeft}>
           <div style={{ position: 'relative' }}>
             <img
-              src={selectedUser.profilepic || `https://avatar.iran.liara.run/public/boy?username=${selectedUser.username}`}
+              src={getAvatarUrl(selectedUser)}
               alt={selectedUser.fullname}
               style={styles.avatar}
             />
@@ -232,7 +233,7 @@ function MessageBubble({ msg, isSelf, isLast, authUser, selectedUser }) {
     >
       {!isSelf && (
         <img
-          src={selectedUser.profilepic || `https://avatar.iran.liara.run/public/boy?username=${selectedUser.username}`}
+          src={getAvatarUrl(selectedUser)}
           alt=""
           style={styles.msgAvatar}
         />
@@ -251,7 +252,7 @@ function MessageBubble({ msg, isSelf, isLast, authUser, selectedUser }) {
       </div>
       {isSelf && (
         <img
-          src={authUser.profilepic || `https://avatar.iran.liara.run/public/boy?username=${authUser.username}`}
+          src={getAvatarUrl(authUser)}
           alt=""
           style={styles.msgAvatar}
         />
